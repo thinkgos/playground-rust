@@ -1,3 +1,7 @@
+#![allow(unused)]
+#![allow(clippy::unused_unit)]
+#![allow(clippy::empty_loop)]
+
 fn main() {
     // @@ 函数
     println!("函数:");

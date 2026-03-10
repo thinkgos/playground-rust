@@ -1,5 +1,4 @@
 use clap::Parser;
-use num_cpus;
 use std::{ffi::OsStr, path::Path};
 use url::Url;
 
@@ -17,7 +16,7 @@ struct Operate {
 fn valid_filename(name: &str) -> Result<(), String> {
     let path = Path::new(name);
 
-    let parent = path.parent().and_then(|p| p.is_dir().then(|| p));
+    let parent = path.parent().and_then(|p| p.is_dir().then_some(p));
     if parent.is_none() {
         return Err("路径不存在".into());
     }
@@ -34,14 +33,14 @@ fn valid_filename(name: &str) -> Result<(), String> {
     if ext.is_none() {
         return Err("扩展名必须为 jpg, jpeg 或者 png".into());
     }
-    return Ok(());
+    Ok(())
 }
 
 fn valid_url(url: &str) -> Result<(), String> {
     if Url::parse(url).is_ok() {
         return Ok(());
     }
-    return Err("invalid url".into());
+    Err("invalid url".into())
 }
 
 fn main() {

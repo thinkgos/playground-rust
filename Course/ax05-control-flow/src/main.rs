@@ -40,7 +40,7 @@ fn main() {
     let mut number = 3;
     while number != 0 {
         println!("\twhile -> number: {}", number);
-        number = number - 1;
+        number -= 1;
     }
     println!("\twhile -> stop!!!");
 

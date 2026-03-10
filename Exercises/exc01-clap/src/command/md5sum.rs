@@ -25,6 +25,6 @@ pub fn run(flag: &DigestFlag) -> Result<(), anyhow::Error> {
     }
     let digest = context.compute();
 
-    println!("{}", flag.mode.format(&digest.as_ref()));
+    println!("{}", flag.mode.format(digest.as_ref()));
     Ok(())
 }
