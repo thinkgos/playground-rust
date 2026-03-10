@@ -30,12 +30,12 @@ mod tests {
         let person1 = Person {
             id: 5,
             name: "Janet".to_string(),
-            phone: 555_666_7777,
+            phone: 5_556_667_777,
         };
         let person2 = Person {
             id: 5,
             name: "Bob".to_string(),
-            phone: 555_666_7777,
+            phone: 5_556_667_777,
         };
         fn calculate_hash<T: Hash>(t: &T) -> u64 {
             let mut s = DefaultHasher::new();
@@ -49,12 +49,12 @@ mod tests {
         let person1 = Person {
             id: 5,
             name: "Janet".to_string(),
-            phone: 555_666_7777,
+            phone: 5_556_667_777,
         };
         let person2 = Person {
             id: 5,
             name: "Janet".to_string(),
-            phone: 555_666_7777,
+            phone: 5_556_667_777,
         };
 
         let s = RandomState::new();

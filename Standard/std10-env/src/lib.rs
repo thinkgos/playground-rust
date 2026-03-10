@@ -13,12 +13,13 @@ mod tests {
 
     #[test]
     fn function_set_vars() {
-        env::set_var("app_name", "env_ex");
-
+        unsafe {
+            env::set_var("app_name", "env_ex");
+        }
         let app_name = env::var("app_name");
         assert_eq!(app_name.unwrap_or_default(), "env_ex");
 
-        env::remove_var("app_name")
+        unsafe { env::remove_var("app_name") }
     }
 
     #[test]

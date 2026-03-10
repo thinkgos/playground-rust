@@ -1,7 +1,7 @@
 use rand::distributions::Alphanumeric;
 use rand::distributions::{Distribution, Standard};
 use rand::seq::{IteratorRandom, SliceRandom};
-use rand::{distributions::Uniform, Rng};
+use rand::{Rng, distributions::Uniform};
 use rand_distr::Normal;
 use std::error;
 
@@ -10,11 +10,11 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     // 1. 生成随机数值
     println!("----------------  生成随机数值  --------------------");
     let mut rng = rand::thread_rng();
-    println!("Random u8: {}", rng.gen::<u8>());
-    println!("Random u16: {}", rng.gen::<u16>());
-    println!("Random u32: {}", rng.gen::<u32>());
-    println!("Random i32: {}", rng.gen::<i32>());
-    println!("Random float: {}", rng.gen::<f64>()); // 浮点数限制在 [0, 1)
+    println!("Random u8: {}", rng.r#gen::<u8>());
+    println!("Random u16: {}", rng.r#gen::<u16>());
+    println!("Random u32: {}", rng.r#gen::<u32>());
+    println!("Random i32: {}", rng.r#gen::<i32>());
+    println!("Random float: {}", rng.r#gen::<f64>()); // 浮点数限制在 [0, 1)
 
     // 2. 生成随机范围内的值
     println!("----------------  生成随机范围内的值  --------------------");
@@ -45,8 +45,8 @@ fn main() -> Result<(), Box<dyn error::Error>> {
 
     println!("----------------  自定义类型生成随机值 tuple, struct  --------------------");
     let mut rng = rand::thread_rng();
-    let rand_tuple = rng.gen::<(i32, bool, f64)>();
-    let rand_point: Point = rng.gen();
+    let rand_tuple = rng.r#gen::<(i32, bool, f64)>();
+    let rand_point: Point = rng.r#gen();
     println!("Random tuple: {:?}", rand_tuple);
     println!("Random Point: {:?}", rand_point);
 
@@ -97,7 +97,7 @@ struct Point {
 
 impl Distribution<Point> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Point {
-        let (rand_x, rand_y) = rng.gen();
+        let (rand_x, rand_y) = rng.r#gen();
         Point {
             x: rand_x,
             y: rand_y,
