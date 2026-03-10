@@ -1,0 +1,114 @@
+[workspace]
+members = [
+    "Playground",
+
+    "Algorithms",
+
+    "DataAnalysis/polars-cc",
+
+    "Opencv/face-identify",
+    "Opencv/run-over-cv",
+
+    "Course/ax01-helloworld",
+    "Course/ax02-variables",
+    "Course/ax03-datatypes",
+    "Course/ax04-function",
+    "Course/ax05-control-flow",
+    "Course/ax06-ownership",
+    "Course/ax07-reference-borrow",
+    "Course/ax08-structs",
+    "Course/ax09-method-syntax",
+    "Course/ax10-enums",
+    "Course/ax11-opiton",
+    "Course/ax12-match",
+    "Course/ax13-package",
+    "Course/ax14-collections",
+    "Course/ax15-error",
+    "Course/ax16-typeinto",
+    "Course/ax17-minigrep",
+    "Course/ax20-lifecycle",
+    "Course/ax21-closure",
+    "Course/ax22-my-macro",
+    "Course/ax23-format-output",
+    "Course/ax39-async-await",
+    "Course/ax40-commandline",
+    "Course/ax41-owner-borrow",
+
+    "Exercises/exc00",
+    "Exercises/exc01-clap",
+    "Exercises/exc02-tokio",
+    "Exercises/exc03-ratatui-counter",
+    "Exercises/exc04-ratatui-json",
+    "Exercises/exc05-ratatui-async-counter",
+    "Exercises/exc06-bzlib-sys",
+
+    "Libraries/lib01-chrono",
+    "Libraries/lib02-clap",
+    "Libraries/lib03-compression",
+    "Libraries/lib04-config",
+    "Libraries/lib05-crossbeam",
+    "Libraries/lib06-derive-more",
+    "Libraries/lib07-dialoguer",
+    "Libraries/lib08-dotenv",
+    "Libraries/lib09-error-anyhow",
+    "Libraries/lib10-hash",
+    "Libraries/lib11-http",
+    "Libraries/lib12-indicatif",
+    "Libraries/lib13-logging",
+    "Libraries/lib14-once-cell",
+    "Libraries/lib15-polars",
+    "Libraries/lib16-prost",
+    "Libraries/lib17-rand",
+    "Libraries/lib18-semver",
+    "Libraries/lib19-serde",
+    "Libraries/lib20-strum",
+    "Libraries/lib21-tera",
+    "Libraries/lib22-typed-builder",
+    "Libraries/lib23-url",
+    "Libraries/lib24-uuid",
+    "Libraries/lib25-zip",
+    "Libraries/lib26-cryptography",
+    "Libraries/lib27-log4",
+
+    "Standard/std01-default", # default trait
+    "Standard/std02-error",   # thiserror crate
+    "Standard/std03-ffi",     # ffi
+    "Standard/std04-iter",    # iter
+    "Standard/std05-mem",     # mem
+    "Standard/std06-option",  # option
+    "Standard/std07-path",    # path
+    "Standard/std08-result",  # result
+    "Standard/std09-time",    # time
+    "Standard/std10-env",
+]
+
+resolver = "2"
+default-members = ["Playground"]
+
+[workspace.package]
+version = "0.1.0"
+authors = ["thinkgo <thinkgo@aliyun.com>"]
+edition = "2024"
+rust-version = "1.92.0"
+description = "playground-rust is a playground for rust."
+keywords = ["playground"]
+license = "Apache-2.0"
+readme = "README.md"
+homepage = "https://github.com/thinkgos/playground-rust"
+repository = "https://github.com/thinkgos/playground-rust"
+
+[workspace.dependencies]
+
+[workspace.lints.rust]
+unsafe-code = "forbid"
+# unused = "allow" # for experimental dev
+
+[profile.dev.package."*"]
+opt-level = "z"
+
+[profile.release]
+opt-level = "z"
+strip = true
+lto = true
+codegen-units = 1
+panic = "abort"

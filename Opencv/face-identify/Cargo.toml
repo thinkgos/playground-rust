@@ -1,0 +1,32 @@
+[package]
+name = "face-identify"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description.workspace = true
+keywords.workspace = true
+license.workspace = true
+readme.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+
+[[bin]]
+# 人脸检测
+name = "face-detection"
+
+[[bin]]
+# 人脸识别
+name = "face-recognition"
+
+[[bin]]
+# 人脸质量评估
+name = "face-quality"
+
+[dependencies]
+opencv = { version = "0.98" }
+anyhow = "1.0"
+
+[lints]
+workspace = true
