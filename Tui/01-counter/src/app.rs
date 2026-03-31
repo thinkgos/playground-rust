@@ -1,8 +1,13 @@
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use ratatui::{DefaultTerminal, Frame};
+
+use crate::event::{Event, EventHandler};
+
 /// Application.
 #[derive(Debug, Default)]
 pub struct App {
-    /// should the application exit?
-    pub should_quit: bool,
+    /// the application exit or not?
+    pub is_quit: bool,
     /// counter
     pub counter: u8,
 }
@@ -18,7 +23,7 @@ impl App {
 
     /// Set should_quit to true to quit the application.
     pub fn quit(&mut self) {
-        self.should_quit = true;
+        self.is_quit = true;
     }
     pub fn increment_counter(&mut self) {
         if let Some(res) = self.counter.checked_add(1) {
@@ -29,5 +34,43 @@ impl App {
         if let Some(res) = self.counter.checked_sub(1) {
             self.counter = res;
         }
+    }
+}
+
+impl App {
+    pub fn draw(&self, frame: &mut Frame) {
+        frame.render_widget(self, frame.area())
+    }
+    pub fn update(&mut self, key_event: KeyEvent) {
+        match key_event.code {
+            KeyCode::Esc | KeyCode::Char('q') => self.quit(),
+            KeyCode::Char('c') | KeyCode::Char('C')
+                if key_event.modifiers == KeyModifiers::CONTROL =>
+            {
+                self.quit()
+            }
+            KeyCode::Up => self.increment_counter(),
+            KeyCode::Down  => self.decrement_counter(),
+            _ => {
+                eprintln!("unsupported key event: {:?}", key_event);
+            }
+        };
+    }
+    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> anyhow::Result<()> {
+        let events = EventHandler::new(250);
+        // Start the main loop.
+        while !self.is_quit {
+            // Render the user interface.
+            terminal.draw(|frame| self.draw(frame))?;
+
+            // Handle events.
+            match events.next()? {
+                Event::Tick => {}
+                Event::Key(key_event) => self.update(key_event),
+                Event::Mouse(_) => {}
+                Event::Resize(_, _) => {}
+            };
+        }
+        Ok(())
     }
 }
