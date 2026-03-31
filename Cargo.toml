@@ -37,9 +37,6 @@ members = [
     "Exercises/exc00",
     "Exercises/exc01-clap",
     "Exercises/exc02-tokio",
-    "Exercises/exc03-ratatui-counter",
-    "Exercises/exc04-ratatui-json",
-    "Exercises/exc05-ratatui-async-counter",
     "Exercises/exc06-bzlib-sys",
 
     "Libraries/lib01-chrono",
@@ -80,6 +77,10 @@ members = [
     "Standard/std08-result",  # result
     "Standard/std09-time",    # time
     "Standard/std10-env",
+
+    "Tui/01-counter",
+    "Tui/02-json",
+    "Tui/03-async-counter",
 ]
 
 resolver = "2"
