@@ -10,7 +10,7 @@ pub mod tui_event;
 pub mod ui;
 
 use std::{
-    io::{self, Stderr},
+    io::{self},
     panic,
 };
 

@@ -26,14 +26,10 @@ impl App {
         self.is_quit = true;
     }
     pub fn increment_counter(&mut self) {
-        if let Some(res) = self.counter.checked_add(1) {
-            self.counter = res;
-        }
+        self.counter = self.counter.checked_add(1).unwrap_or(u8::MIN);
     }
     pub fn decrement_counter(&mut self) {
-        if let Some(res) = self.counter.checked_sub(1) {
-            self.counter = res;
-        }
+        self.counter = self.counter.checked_sub(1).unwrap_or(u8::MAX);
     }
 }
 
@@ -50,12 +46,13 @@ impl App {
                 self.quit()
             }
             KeyCode::Up => self.increment_counter(),
-            KeyCode::Down  => self.decrement_counter(),
+            KeyCode::Down => self.decrement_counter(),
             _ => {
-                eprintln!("unsupported key event: {:?}", key_event);
+                // eprintln!("unsupported key event: {:?}", key_event);
             }
         };
     }
+
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> anyhow::Result<()> {
         let events = EventHandler::new(250);
         // Start the main loop.

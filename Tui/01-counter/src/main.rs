@@ -6,8 +6,6 @@ use anyhow::Result;
 use app::App;
 
 fn main() -> Result<()> {
-    // Create an application.
-    let mut app = App::new();
-    ratatui::run(|terminal| app.run(terminal))?;
+    ratatui::run(|terminal| App::new().run(terminal))?;
     Ok(())
 }

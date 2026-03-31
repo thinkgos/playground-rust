@@ -26,7 +26,7 @@ impl App {
             )
             .style(Style::default().fg(Color::Yellow))
             .alignment(Alignment::Center),
-            f.size(),
+            f.area(),
         )
     }
 }

@@ -1,11 +1,11 @@
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{
+    Frame,
     layout::{self, Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     text::{Line, Span, Text},
     widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap},
-    Frame,
 };
 
 use crate::{
@@ -35,7 +35,7 @@ impl App {
                 Constraint::Min(1),
                 Constraint::Length(3),
             ])
-            .split(f.size());
+            .split(f.area());
         self.render_title(f, chunks[0]);
         self.render_body(f, chunks[1]);
         self.render_footer(f, chunks[2]);
@@ -47,7 +47,7 @@ impl App {
                 .borders(Borders::NONE)
                 .style(Style::default().bg(Color::DarkGray));
 
-            let area = centered_rect(60, 25, f.size());
+            let area = centered_rect(60, 25, f.area());
             f.render_widget(popup_block, area);
             let popup_chunks = Layout::default()
                 .direction(Direction::Horizontal)
@@ -71,7 +71,7 @@ impl App {
             f.render_widget(value_text, popup_chunks[1]);
         }
         if let CurrentScreen::Exiting = self.current_screen {
-            f.render_widget(Clear, f.size()); //this clears the entire screen and anything already drawn
+            f.render_widget(Clear, f.area()); //this clears the entire screen and anything already drawn
             let popup_block = Block::default()
                 .title("Y/N")
                 .borders(Borders::NONE)
@@ -86,7 +86,7 @@ impl App {
                 .block(popup_block)
                 .wrap(Wrap { trim: false });
 
-            let area = centered_rect(60, 25, f.size());
+            let area = centered_rect(60, 25, f.area());
             f.render_widget(exit_paragraph, area);
         }
     }
