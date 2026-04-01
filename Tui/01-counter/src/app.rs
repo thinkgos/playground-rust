@@ -1,21 +1,29 @@
+use std::time::Duration;
+
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{DefaultTerminal, Frame};
 
 use crate::event::{Event, EventHandler};
 
 /// Application.
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct App {
     /// the application exit or not?
     pub is_quit: bool,
     /// counter
     pub counter: u8,
+    /// event handler for terminal events
+    events: EventHandler,
 }
 
 impl App {
     /// Constructs a new instance of [`App`].
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            is_quit: false,
+            counter: 0,
+            events: EventHandler::new(Duration::from_millis(250)),
+        }
     }
 
     /// Handles the tick event of the terminal.
@@ -30,6 +38,12 @@ impl App {
     }
     pub fn decrement_counter(&mut self) {
         self.counter = self.counter.checked_sub(1).unwrap_or(u8::MAX);
+    }
+}
+
+impl Default for App {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -54,14 +68,13 @@ impl App {
     }
 
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> anyhow::Result<()> {
-        let events = EventHandler::new(250);
         // Start the main loop.
         while !self.is_quit {
             // Render the user interface.
             terminal.draw(|frame| self.draw(frame))?;
 
             // Handle events.
-            match events.next()? {
+            match self.events.next()? {
                 Event::Tick => {}
                 Event::Key(key_event) => self.update(key_event),
                 Event::Mouse(_) => {}
