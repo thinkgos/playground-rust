@@ -1,30 +1,26 @@
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::{
-    Frame,
+    DefaultTerminal, Frame,
     layout::{self, Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     text::{Line, Span, Text},
     widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap},
 };
 
-use crate::{
-    app::{App, CurrentScreen, CurrentlyEditing},
-    tui::Tui,
-};
+use crate::app::{App, CurrentScreen, CurrentlyEditing};
 
 impl App {
     pub fn run(&mut self) -> Result<bool> {
-        let mut tui = Tui::new()?;
-        // let events = EventHandler::new(250);
-        // Start the main loop.
-        loop {
-            // Render the user interface.
-            tui.draw(|frame| self.render(frame))?;
-            if let Some(t) = self.update_event()? {
-                return Ok(t);
+        ratatui::run(|terminal: &mut DefaultTerminal| {
+            loop {
+                // Render the user interface.
+                terminal.draw(|frame| self.render(frame))?;
+                if let Some(t) = self.update_event()? {
+                    return Ok(t);
+                }
             }
-        }
+        })
     }
 
     pub fn render(&mut self, f: &mut Frame) {
