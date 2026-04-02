@@ -1,5 +1,5 @@
 use anyhow::Result;
-use crossterm::event::{self, Event, KeyCode, KeyEventKind};
+use crossterm::event::{self, Event, KeyCode};
 use ratatui::{
     DefaultTerminal, Frame,
     layout::{self, Constraint, Direction, Layout, Rect},
@@ -32,59 +32,66 @@ impl App {
                 Constraint::Length(3),
             ])
             .split(f.area());
+
         self.render_title(f, chunks[0]);
         self.render_body(f, chunks[1]);
         self.render_footer(f, chunks[2]);
-        // popup
 
-        if let Some(editing) = &self.currently_editing {
-            let popup_block = Block::default()
-                .title("Enter a new key-value pair")
-                .borders(Borders::NONE)
-                .style(Style::default().bg(Color::DarkGray));
-
-            let area = centered_rect(60, 25, f.area());
-            f.render_widget(popup_block, area);
-            let popup_chunks = Layout::default()
-                .direction(Direction::Horizontal)
-                .margin(1)
-                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-                .split(area);
-            let mut key_block = Block::default().title("Key").borders(Borders::ALL);
-            let mut value_block = Block::default().title("Value").borders(Borders::ALL);
-
-            let active_style = Style::default().bg(Color::LightYellow).fg(Color::Black);
-
-            match editing {
-                CurrentlyEditing::Key => key_block = key_block.style(active_style),
-                CurrentlyEditing::Value => value_block = value_block.style(active_style),
-            };
-
-            let key_text = Paragraph::new(self.key_input.clone()).block(key_block);
-            f.render_widget(key_text, popup_chunks[0]);
-
-            let value_text = Paragraph::new(self.value_input.clone()).block(value_block);
-            f.render_widget(value_text, popup_chunks[1]);
+        // Render popups
+        match (&self.current_screen, &self.currently_editing) {
+            (_, Some(editing)) => self.render_editing_popup(f, editing),
+            (CurrentScreen::Exiting, _) => self.render_exit_popup(f),
+            _ => {}
         }
-        if let CurrentScreen::Exiting = self.current_screen {
-            f.render_widget(Clear, f.area()); //this clears the entire screen and anything already drawn
-            let popup_block = Block::default()
-                .title("Y/N")
-                .borders(Borders::NONE)
-                .style(Style::default().bg(Color::DarkGray));
+    }
 
-            let exit_text = Text::styled(
-                "Would you like to output the buffer as json? (y/n)",
-                Style::default().fg(Color::Red),
-            );
-            // the `trim: false` will stop the text from being cut off when over the edge of the block
-            let exit_paragraph = Paragraph::new(exit_text)
-                .block(popup_block)
-                .wrap(Wrap { trim: false });
+    fn render_editing_popup(&self, f: &mut Frame, editing: &CurrentlyEditing) {
+        let area = centered_rect(60, 25, f.area());
 
-            let area = centered_rect(60, 25, f.area());
-            f.render_widget(exit_paragraph, area);
-        }
+        let popup_block = Block::default()
+            .title("Enter a new key-value pair")
+            .borders(Borders::NONE)
+            .style(Style::default().bg(Color::DarkGray));
+        f.render_widget(popup_block, area);
+
+        let popup_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .margin(1)
+            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+            .split(area);
+
+        let active_style = Style::default().bg(Color::LightYellow).fg(Color::Black);
+        let (key_style, value_style) = match editing {
+            CurrentlyEditing::Key => (active_style, Style::default()),
+            CurrentlyEditing::Value => (Style::default(), active_style),
+        };
+
+        let key_block = Block::default().title("Key").borders(Borders::ALL).style(key_style);
+        let value_block = Block::default().title("Value").borders(Borders::ALL).style(value_style);
+
+        f.render_widget(Paragraph::new(self.key_input.as_str()).block(key_block), popup_chunks[0]);
+        f.render_widget(Paragraph::new(self.value_input.as_str()).block(value_block), popup_chunks[1]);
+    }
+
+    fn render_exit_popup(&self, f: &mut Frame) {
+        f.render_widget(Clear, f.area());
+
+        let area = centered_rect(60, 25, f.area());
+        let popup_block = Block::default()
+            .title("Y/N")
+            .borders(Borders::NONE)
+            .style(Style::default().bg(Color::DarkGray));
+
+        let exit_text = Text::styled(
+            "Would you like to output the buffer as json? (y/n)",
+            Style::default().fg(Color::Red),
+        );
+
+        let exit_paragraph = Paragraph::new(exit_text)
+            .block(popup_block)
+            .wrap(Wrap { trim: false });
+
+        f.render_widget(exit_paragraph, area);
     }
     fn render_title(&self, f: &mut Frame, area: layout::Rect) {
         let title_block = Block::default()
@@ -99,17 +106,18 @@ impl App {
         f.render_widget(title, area);
     }
     fn render_body(&self, f: &mut Frame, area: layout::Rect) {
-        let mut list_items = Vec::<ListItem>::new();
-        for key in self.pairs.keys() {
-            list_items.push(ListItem::new(Line::from(Span::styled(
-                format!("{: <25} : {}", key, self.pairs.get(key).unwrap()),
-                Style::default().fg(Color::Yellow),
-            ))));
-        }
+        let list_items: Vec<ListItem> = self
+            .pairs
+            .iter()
+            .map(|(key, value)| {
+                ListItem::new(Line::from(Span::styled(
+                    format!("{: <25} : {}", key, value),
+                    Style::default().fg(Color::Yellow),
+                )))
+            })
+            .collect();
 
-        let list = List::new(list_items);
-
-        f.render_widget(list, area);
+        f.render_widget(List::new(list_items), area);
     }
     fn render_footer(&self, f: &mut Frame, area: layout::Rect) {
         let current_navigation_text = vec![
@@ -148,21 +156,17 @@ impl App {
         let mode_footer = Paragraph::new(Line::from(current_navigation_text))
             .block(Block::default().borders(Borders::ALL));
 
-        let current_keys_hint = {
-            match self.current_screen {
-                CurrentScreen::Main => Span::styled(
-                    "(q) to quit / (e) to make new pair",
-                    Style::default().fg(Color::Red),
-                ),
-                CurrentScreen::Editing => Span::styled(
-                    "(ESC) to cancel/(Tab) to switch boxes/enter to complete",
-                    Style::default().fg(Color::Red),
-                ),
-                CurrentScreen::Exiting => Span::styled(
-                    "(q) to quit / (e) to make new pair",
-                    Style::default().fg(Color::Red),
-                ),
-            }
+        let main_exit_hint = Span::styled(
+            "(q) to quit / (e) to make new pair",
+            Style::default().fg(Color::Red),
+        );
+
+        let current_keys_hint = match self.current_screen {
+            CurrentScreen::Main | CurrentScreen::Exiting => main_exit_hint,
+            CurrentScreen::Editing => Span::styled(
+                "(ESC) to cancel/(Tab) to switch boxes/enter to complete",
+                Style::default().fg(Color::Red),
+            ),
         };
 
         let key_notes_footer = Paragraph::new(Line::from(current_keys_hint))
@@ -201,7 +205,7 @@ impl App {
                     }
                     _ => {}
                 },
-                CurrentScreen::Editing if key.kind == KeyEventKind::Press => match key.code {
+                CurrentScreen::Editing => match key.code {
                     KeyCode::Enter => {
                         if let Some(editing) = &self.currently_editing {
                             match editing {
@@ -247,8 +251,7 @@ impl App {
                         }
                     }
                     _ => {}
-                },
-                _ => {}
+                }
             }
         }
         Ok(None)
